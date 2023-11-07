@@ -84,7 +84,7 @@ jobs:
             docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GIT_TOKEN }}
             docker pull ${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE }}:latest
             docker run -d \
-              -p 80:3000 \
+              -p 3000:3000 \
               -p 443:443 \
               --name ${{ env.DOCKER_CONTAINER }} \
               --restart=always \
