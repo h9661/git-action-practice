@@ -80,6 +80,7 @@ jobs:
           script: |
             docker stop ${{ env.DOCKER_CONTAINER }} || true
             docker rm ${{ env.DOCKER_CONTAINER }} || true
+            docker rmi ${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE }}:latest || true
 
             docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GIT_TOKEN }}
             docker pull ${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE }}:latest
