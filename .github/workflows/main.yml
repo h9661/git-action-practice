@@ -1,0 +1,29 @@
+# main branch에 push, pull request가 발생할 때 실행
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# 테스트 코드 실행
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: npm install
+        run: npm install
+
+      - name: npm test
+        run: npm test
+
+      - name: npm run build
+        run: npm run build
