@@ -59,3 +59,33 @@ jobs:
         with:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE }}:latest
+
+  # 도커 이미지 빌드 성공시,
+  deploy:
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout source code
+        uses: actions/checkout@v2
+
+      - name: deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          port: ${{ secrets.REMOTE_PORT }}
+          password: ${{ secrets.REMOTE_PASSWORD }}
+          script: |
+            docker stop ${{ env.DOCKER_CONTAINER }} || true
+            docker rm ${{ env.DOCKER_CONTAINER }} || true
+
+            docker pull ${{ env.REGISTRY }}/h9661/${{ env.DOCKER_IMAGE }}:latest
+
+            docker run -d \
+              -p 80:3000 \
+              -p 443:443 \
+              --name ${{ env.DOCKER_CONTAINER }} \
+              --restart=always \
+              ${{ env.REGISTRY }}/h9661/${{ env.DOCKER_IMAGE }}:latest
