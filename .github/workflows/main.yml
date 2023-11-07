@@ -70,13 +70,6 @@ jobs:
       - name: checkout source code
         uses: actions/checkout@v2
 
-      - name: login to ghcr
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GIT_TOKEN }}
-
       - name: deploy
         uses: appleboy/ssh-action@master
         with:
@@ -95,4 +88,4 @@ jobs:
               -p 443:443 \
               --name ${{ env.DOCKER_CONTAINER }} \
               --restart=always \
-              ${{ env.REGISTRY }}/h9661/${{ env.DOCKER_IMAGE }}:latest
+              ${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE }}:latest
