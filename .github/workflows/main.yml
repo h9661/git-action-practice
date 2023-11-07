@@ -70,13 +70,6 @@ jobs:
       - name: checkout source code
         uses: actions/checkout@v2
 
-      - name: Login to ghcr
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GIT_TOKEN }}
-
       - name: deploy
         uses: appleboy/ssh-action@master
         with:
@@ -88,8 +81,8 @@ jobs:
             docker stop ${{ env.DOCKER_CONTAINER }} || true
             docker rm ${{ env.DOCKER_CONTAINER }} || true
 
+            docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GIT_TOKEN }}
             docker pull ${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE }}:latest
-
             docker run -d \
               -p 80:3000 \
               -p 443:443 \
