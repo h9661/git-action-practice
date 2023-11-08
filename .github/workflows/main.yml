@@ -1,14 +1,11 @@
 # main branch에 push, pull request가 발생할 때 실행
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
 
 env:
-  # Docker Hub에 로그인하기 위한 환경 변수
+  # 도커 레지스트리 및 이미지 정보, 컨테이너 이름
   REGISTRY: ghcr.io
   DOCKER_IMAGE: ${{ github.repository }}
   DOCKER_CONTAINER: server
@@ -33,6 +30,31 @@ jobs:
 
       - name: npm run build
         run: npm run build
+
+      - name: if build fail, close pr request
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GIT_TOKEN }}
+          script: |
+            const pull_number = context.payload.pull_request.number;
+            const updated_title = `🚨 [WIP] ${context.payload.pull_request.title}`;
+
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number,
+              body: '테스트 및 빌드 실패로 인해, 머지할 수 없습니다.'
+              event: 'REQUEST_CHANGES',
+            });
+
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number,
+              title: updated_title,
+              state: 'closed',
+            });
 
   # 테스트 성공시, 도커 이미지 빌드
   build:
